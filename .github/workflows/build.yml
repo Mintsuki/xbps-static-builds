@@ -34,8 +34,6 @@ jobs:
             platform: linux/riscv64
           - arch: s390x
             platform: linux/s390x
-          - arch: loongarch64
-            platform: linux/loong64
 
     name: ${{ matrix.arch }}
     steps:

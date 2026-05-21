@@ -21,7 +21,6 @@ xbps-0.60.7-i686.tar.gz
 xbps-0.60.7-ppc64le.tar.gz
 xbps-0.60.7-riscv64.tar.gz
 xbps-0.60.7-s390x.tar.gz
-xbps-0.60.7-loongarch64.tar.gz
 SHA256SUMS
 ```
 
@@ -32,10 +31,11 @@ binaries are static-PIE linked against musl libc; they have no runtime
 shared-library dependencies and run on any Linux of the right CPU arch.
 
 Arch naming follows the build host's `uname -m`, so consumers can pick
-the right tarball with no translation. Debian's `armel` (armv5) and
-`mips64el` are not covered: Alpine has no port for either, and
-supporting them would mean a parallel Debian Sid build flow for two
-niche arches.
+the right tarball with no translation. `armel` (armv5), `loongarch64`,
+and `mips64el` are not currently covered: there's no Alpine Linux
+multi-arch container image for them on Docker Hub. LoongArch may
+become possible once Alpine publishes an official `linux/loong64`
+image.
 
 ## How it works
 
