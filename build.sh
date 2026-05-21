@@ -64,8 +64,9 @@ for f in xbps-*; do
 done
 
 mkdir -p "${OUT_DIR}"
-cd /tmp/install
-tar -czf "${OUT_DIR}/${TARBALL}" .
+DIRNAME="${TARBALL%.tar.gz}"
+mv /tmp/install "/tmp/${DIRNAME}"
+( cd /tmp && tar -czf "${OUT_DIR}/${TARBALL}" "${DIRNAME}" )
 
 echo "Built ${TARBALL}:"
 ls -lh "${OUT_DIR}/${TARBALL}"
