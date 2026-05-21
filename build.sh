@@ -44,6 +44,12 @@ sed -i 's/&& DEBUG=yes/&& DEBUG=no/g' configure
 CFLAGS="-O2 -pipe -Wno-error" ./configure --verbose --enable-static \
     --prefix=/ --sysconfdir=/etc --localstatedir=/var
 
+# Force plain static (non-PIE). xbps's configure already adds -fPIE/-pie, and
+# Alpine's gcc is built with --enable-default-pie, so just removing those isn't
+# enough; we append -fno-pie/-no-pie *after* them so the later flag wins.
+echo "PROG_CFLAGS += -fno-pie" >> config.mk
+echo "PROG_LDFLAGS += -no-pie" >> config.mk
+
 make -j"$(nproc)"
 make DESTDIR=/tmp/install install
 

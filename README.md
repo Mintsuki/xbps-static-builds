@@ -27,11 +27,13 @@ The release tag and title are the UTC timestamp of the run (e.g.
 `20260521T140000Z`); the release body identifies the xbps version
 the tarballs carry (pinned in `build.sh`).
 
-Each tarball extracts to `bin/` (xbps-install, xbps-query, ...), `lib/`,
+Each tarball extracts to a top-level directory of the same name as the
+tarball, containing `bin/` (xbps-install, xbps-query, ...), `lib/`,
 `share/`, etc., i.e. the `make DESTDIR=... install` payload of xbps with
 the dynamic frontends replaced by their `.static` counterparts. The
-binaries are static-PIE linked against musl libc; they have no runtime
-shared-library dependencies and run on any Linux of the right CPU arch.
+binaries are statically linked (non-PIE) against musl libc; they have
+no runtime shared-library dependencies and run on any Linux of the right
+CPU arch.
 
 Arch naming follows the build host's `uname -m`, so consumers can pick
 the right tarball with no translation. `armel` (armv5), `loongarch64`,
