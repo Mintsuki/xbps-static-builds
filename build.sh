@@ -2,7 +2,7 @@
 # Build xbps statically against musl, inside an Alpine container that already
 # matches the target arch (the CI workflow spins one up per arch via QEMU).
 #
-# Outputs /work/dist/xbps-${XBPS_VERSION}-${ARCH}.tar.gz, where /work is the
+# Outputs /work/dist/xbps-static-bin-linux-${ARCH}.tar.gz, where /work is the
 # workflow's checkout mounted in. ARCH must be supplied by the caller (the
 # workflow passes the matrix value); uname -m is unreliable here because
 # Docker/QEMU report the host kernel's arch for linux/386 and an ARMv7 CPU
@@ -14,7 +14,7 @@ XBPS_VERSION=0.60.7
 
 : "${ARCH:?ARCH must be set}"
 OUT_DIR=/work/dist
-TARBALL="xbps-${XBPS_VERSION}-${ARCH}.tar.gz"
+TARBALL="xbps-static-bin-linux-${ARCH}.tar.gz"
 
 # Toolchain + every static dep libarchive transitively needs. The exact set
 # was derived from `pkg-config --static --libs libarchive` on Alpine; missing
@@ -66,8 +66,6 @@ done
 mkdir -p "${OUT_DIR}"
 cd /tmp/install
 tar -czf "${OUT_DIR}/${TARBALL}" .
-( cd "${OUT_DIR}" && sha256sum "${TARBALL}" > "${TARBALL}.sha256" )
 
 echo "Built ${TARBALL}:"
 ls -lh "${OUT_DIR}/${TARBALL}"
-cat "${OUT_DIR}/${TARBALL}.sha256"

@@ -88,11 +88,8 @@ jobs:
           pattern: xbps-*
           merge-multiple: true
 
-      - name: Aggregate SHA256SUMS
-        run: |
-          cd dist
-          sha256sum *.tar.gz | sort > SHA256SUMS
-          cat SHA256SUMS
+      - name: Read xbps version
+        run: grep -o 'XBPS_VERSION=.*$' build.sh >> $GITHUB_ENV
 
       - name: Tag new release
         run: |
@@ -102,10 +99,13 @@ jobs:
       - name: Create new release
         uses: softprops/action-gh-release@v3
         with:
-          name: Release ${{ needs.prepare.outputs.tag_date }}
+          name: ${{ needs.prepare.outputs.tag_date }}
           tag_name: ${{ needs.prepare.outputs.tag_date }}
-          files: |
-            dist/*.tar.gz
-            dist/SHA256SUMS
+          body: |
+            Static musl-linked builds of xbps.
+
+            This build is based on:
+              - xbps ${{ env.XBPS_VERSION }}
+          files: dist/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

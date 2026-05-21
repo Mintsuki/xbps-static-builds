@@ -10,25 +10,22 @@ non-Void distro, etc.
 ## What it produces
 
 Each push to `trunk` (or a manual `workflow_dispatch`) creates a
-timestamp-tagged GitHub Release containing one tarball per supported
-arch, plus an aggregated `SHA256SUMS` file:
+GitHub Release containing one tarball per supported arch:
 
 ```
-xbps-<version>-x86_64.tar.gz
-xbps-<version>-aarch64.tar.gz
-xbps-<version>-armv7l.tar.gz
-xbps-<version>-armv6l.tar.gz
-xbps-<version>-i686.tar.gz
-xbps-<version>-ppc64le.tar.gz
-xbps-<version>-riscv64.tar.gz
-xbps-<version>-s390x.tar.gz
-SHA256SUMS
+xbps-static-bin-linux-x86_64.tar.gz
+xbps-static-bin-linux-aarch64.tar.gz
+xbps-static-bin-linux-armv7l.tar.gz
+xbps-static-bin-linux-armv6l.tar.gz
+xbps-static-bin-linux-i686.tar.gz
+xbps-static-bin-linux-ppc64le.tar.gz
+xbps-static-bin-linux-riscv64.tar.gz
+xbps-static-bin-linux-s390x.tar.gz
 ```
 
-The `<version>` reflects whatever xbps version was pinned in `build.sh`
-at the time of the run; the release tag itself is the UTC timestamp of
-the run (e.g. `20260521T140000Z`), and the release body mentions the
-xbps version that was built.
+The release tag and title are the UTC timestamp of the run (e.g.
+`20260521T140000Z`); the release body identifies the xbps version
+the tarballs carry (pinned in `build.sh`).
 
 Each tarball extracts to `bin/` (xbps-install, xbps-query, ...), `lib/`,
 `share/`, etc., i.e. the `make DESTDIR=... install` payload of xbps with
@@ -54,10 +51,9 @@ image.
    for the target platform, runs `build.sh` inside it, and uploads the
    resulting tarball as a workflow artifact. Alpine is natively musl,
    so all `-static` packages link correctly without a musl-gcc dance.
-3. `release` downloads every artifact, aggregates a combined
-   `SHA256SUMS`, tags the commit with the timestamp from step 1, and
-   publishes a GitHub Release containing all tarballs plus the
-   manifest.
+3. `release` downloads every artifact, tags the commit with the
+   timestamp from step 1, and publishes a GitHub Release containing all
+   tarballs.
 
 ## Releasing a new xbps version
 
