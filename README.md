@@ -9,20 +9,26 @@ non-Void distro, etc.
 
 ## What it produces
 
-A release tagged `<xbps-version>` (e.g. `0.60.7`) containing one tarball
-per supported arch:
+Each push to `trunk` (or a manual `workflow_dispatch`) creates a
+timestamp-tagged GitHub Release containing one tarball per supported
+arch, plus an aggregated `SHA256SUMS` file:
 
 ```
-xbps-0.60.7-x86_64.tar.gz
-xbps-0.60.7-aarch64.tar.gz
-xbps-0.60.7-armv7l.tar.gz
-xbps-0.60.7-armv6l.tar.gz
-xbps-0.60.7-i686.tar.gz
-xbps-0.60.7-ppc64le.tar.gz
-xbps-0.60.7-riscv64.tar.gz
-xbps-0.60.7-s390x.tar.gz
+xbps-<version>-x86_64.tar.gz
+xbps-<version>-aarch64.tar.gz
+xbps-<version>-armv7l.tar.gz
+xbps-<version>-armv6l.tar.gz
+xbps-<version>-i686.tar.gz
+xbps-<version>-ppc64le.tar.gz
+xbps-<version>-riscv64.tar.gz
+xbps-<version>-s390x.tar.gz
 SHA256SUMS
 ```
+
+The `<version>` reflects whatever xbps version was pinned in `build.sh`
+at the time of the run; the release tag itself is the UTC timestamp of
+the run (e.g. `20260521T140000Z`), and the release body mentions the
+xbps version that was built.
 
 Each tarball extracts to `bin/` (xbps-install, xbps-query, ...), `lib/`,
 `share/`, etc., i.e. the `make DESTDIR=... install` payload of xbps with
@@ -39,29 +45,27 @@ image.
 
 ## How it works
 
-`.github/workflows/build.yml` runs a fan-out matrix of one job per arch.
-Each job:
+`.github/workflows/build.yml` runs in three stages:
 
-1. Sets up `binfmt_misc` via `docker/setup-qemu-action` so non-native
-   arches can be emulated.
-2. Pulls `alpine:latest` for the target platform and runs `build.sh`
-   inside it. Alpine is natively musl, so all `-static` packages link
-   correctly without a musl-gcc dance.
-3. Uploads the resulting tarball + `.sha256` as a workflow artifact.
-
-On a tag push, a final `release` job downloads every artifact, regenerates
-a combined `SHA256SUMS`, and publishes a GitHub Release.
+1. `prepare` computes the UTC timestamp that will be used as both the
+   release tag and the name.
+2. `build` is a fan-out matrix of one job per arch. Each job sets up
+   `binfmt_misc` via `docker/setup-qemu-action`, pulls `alpine:latest`
+   for the target platform, runs `build.sh` inside it, and uploads the
+   resulting tarball as a workflow artifact. Alpine is natively musl,
+   so all `-static` packages link correctly without a musl-gcc dance.
+3. `release` downloads every artifact, aggregates a combined
+   `SHA256SUMS`, tags the commit with the timestamp from step 1, and
+   publishes a GitHub Release containing all tarballs plus the
+   manifest.
 
 ## Releasing a new xbps version
 
-1. Tag the commit with the desired xbps version: `git tag 0.60.8 && git push --tags`.
-2. The workflow builds all arches in parallel and creates the release.
-
-## Manual one-off build
-
-Use the workflow's `workflow_dispatch` trigger ("Run workflow" in the
-Actions tab) and supply an `xbps_version`. No release is published; the
-tarballs land as workflow artifacts.
+1. Bump `XBPS_VERSION` near the top of `build.sh`.
+2. Commit and push to `trunk`.
+3. The workflow builds every arch in parallel and creates a new release
+   tagged with the run's UTC timestamp; the release body identifies the
+   xbps version it carries.
 
 ## Reproducing locally
 
@@ -71,7 +75,7 @@ Anyone with Docker + QEMU (`docker run --privileged --rm tonistiigi/binfmt
 ```
 docker run --rm --platform=linux/arm64 \
     -v "$PWD:/work" -w /work \
-    -e XBPS_VERSION=0.60.7 \
+    -e ARCH=aarch64 \
     alpine:latest \
     sh /work/build.sh
 ls dist/

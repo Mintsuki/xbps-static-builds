@@ -10,7 +10,8 @@
 
 set -eu
 
-: "${XBPS_VERSION:?XBPS_VERSION must be set}"
+XBPS_VERSION=0.60.7
+
 : "${ARCH:?ARCH must be set}"
 OUT_DIR=/work/dist
 TARBALL="xbps-${XBPS_VERSION}-${ARCH}.tar.gz"
