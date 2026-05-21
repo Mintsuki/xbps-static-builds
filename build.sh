@@ -2,13 +2,16 @@
 # Build xbps statically against musl, inside an Alpine container that already
 # matches the target arch (the CI workflow spins one up per arch via QEMU).
 #
-# Outputs /work/dist/xbps-${XBPS_VERSION}-$(uname -m).tar.gz, where /work is
-# the workflow's checkout mounted in.
+# Outputs /work/dist/xbps-${XBPS_VERSION}-${ARCH}.tar.gz, where /work is the
+# workflow's checkout mounted in. ARCH must be supplied by the caller (the
+# workflow passes the matrix value); uname -m is unreliable here because
+# Docker/QEMU report the host kernel's arch for linux/386 and an ARMv7 CPU
+# for linux/arm/v6, so deriving the name from uname collides tarballs.
 
 set -eu
 
 : "${XBPS_VERSION:?XBPS_VERSION must be set}"
-ARCH="$(uname -m)"
+: "${ARCH:?ARCH must be set}"
 OUT_DIR=/work/dist
 TARBALL="xbps-${XBPS_VERSION}-${ARCH}.tar.gz"
 

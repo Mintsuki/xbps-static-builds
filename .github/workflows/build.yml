@@ -62,6 +62,7 @@ jobs:
           docker run --rm --platform=${{ matrix.platform }} \
             -v "$PWD:/work" -w /work \
             -e XBPS_VERSION="${{ steps.ver.outputs.version }}" \
+            -e ARCH="${{ matrix.arch }}" \
             alpine:latest \
             sh /work/build.sh
 
